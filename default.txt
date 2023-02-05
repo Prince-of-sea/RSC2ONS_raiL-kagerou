@@ -1,0 +1,405 @@
+;mode800
+*define
+
+caption "霞外籠逗留記 for ONScripter"
+
+rmenu "セーブ",save,"ロード",load,"ログ",lookback,"リセット",reset
+savename "ＳＡＶＥ","ＬＯＡＤ","ＤＡＴＡ"
+savenumber 18
+transmode alpha
+globalon
+rubyon
+nsa
+humanz 10
+windowback
+
+effect 10,10,500
+effect 11,10,1000
+
+;エイリアス
+numalias select_var,77
+numalias select_cnt,78
+
+
+;サブルーチン
+pretextgosub *pretext_lb
+defsub setwin_def
+defsub RSC_MESSAGE
+defsub RSC_select
+defsub RSC_IMAGE_GET
+defsub RSC_SPRITE
+defsub RSC_BGM
+defsub RSC_SE
+defsub RSC_MOVIE
+
+defsub RSC_select_chara
+defsub RSC_select_chara2
+
+defsub start_set
+
+game
+;----------------------------------------
+*pretext_lb
+	if $10!="" dwave 0,"voice\"+$10+".wav"
+	mov $10,""
+	saveon ;pretextgosub利用時最後にsaveon必須
+return
+
+
+*setwin_def
+	getparam %20
+	if %20==0 setwindow3 5,  5,21,20,24,24,0,6,14,0,1,#999999,0,  0,799,599;ほんへ
+	if %20==1 setwindow3 5,477,21,20,24,24,0,5,40,0,1,#999999,0,470,799,599;選択肢
+return
+
+
+*RSC_MESSAGE
+	getparam $10
+	
+	;取得した数字の桁数
+	len %24,$10
+	
+	;0埋め
+	for %0=0 to 3-%24
+		mov $10,"0"+$20
+	next
+return
+
+
+*RSC_select
+	;mov %21,8011:mov %22,8012:mov %23,0
+	
+	setwin_def 1
+	
+	itoa $21,%21
+	itoa $22,%22
+	itoa $23,%23
+	
+	lsp 40 "grpo\8000.png",66,131
+	lsp 30 "grpo\8002.png",66,131
+	
+	if %21==0 mov $31,""  :lsp 31 "grpo\8001.png"   ,66+167        ,131
+	if %21!=0 mov $31,"１":lsp 31 "grpo\"+$21+".png",66+167        ,131:lsp 34,":s#FFFFFF１",66+167        ,101
+	if %22==0 mov $32,""  :lsp 32 "grpo\8002.png"   ,66+167+167    ,131
+	if %22!=0 mov $32,"２":lsp 32 "grpo\"+$22+".png",66+167+167    ,131:lsp 35,":s#FFFFFF２",66+167+167    ,101
+	if %23==0 mov $33,""  :lsp 33 "grpo\8001.png"   ,66+167+167+167,131
+	if %23!=0 mov $33,"３":lsp 33 "grpo\"+$23+".png",66+167+167+167,131:lsp 36,":s#FFFFFF３",66+167+167+167,101
+	
+	print 10
+	
+	select $31,*RSC_sel1,
+	       $32,*RSC_sel2,
+	       $33,*RSC_sel3
+	
+	;選択肢1/2のときはvar1/0で動く
+	;選択肢1/2/3のときは知らん
+	*RSC_sel1
+		mov %select_var,1
+		vsp 31,0
+		print 10
+	goto *RSC_selEND
+	
+	*RSC_sel2
+		mov %select_var,0
+		vsp 32,0
+		print 10
+	goto *RSC_selEND
+	
+	*RSC_sel3
+		mov %select_var,9
+		vsp 33,0
+		print 10
+	goto *RSC_selEND
+	
+	
+	
+	*RSC_selEND
+	csp 30:csp 31:csp 32:csp 33:csp 34:csp 35:csp 36:csp 37:csp 38:csp 39:csp 40
+	print 10
+	setwin_def 0
+	
+return
+
+*RSC_select_chara
+	mov %select_cnt,0
+	if %select_var==1 return *JUMP_7_1016_gsc
+	if %select_var==0 return *JUMP_10_1016_gsc
+	if %select_var==9 return *JUMP_9_1016_gsc
+return
+
+
+*RSC_select_chara2
+	if %select_var==1 return *JUMP_5_0050_gsc
+	if %select_var==0 return *JUMP_8_0050_gsc
+	if %select_var==9 return *JUMP_9_0050_gsc
+return
+
+
+*RSC_IMAGE_GET
+	getparam %20
+	itoa $20,%20
+	
+	;取得した数字の桁数
+	len %25,$20
+	
+	;0埋め
+	for %0=0 to 3-%25
+		mov $20,"0"+$20
+	next
+	
+	if %20!=0 bg "grpe\"+$20+".png",10
+return
+
+
+*RSC_SPRITE
+	getparam %20
+	itoa $20,%20
+	
+	;取得した数字の桁数
+	len %25,$20
+	
+	;0埋め
+	for %0=0 to 3-%25
+		mov $20,"0"+$20
+	next
+	
+	;中央表示
+	lsph 50,"grpo_bu\"+$20+".png",0,0
+	getspsize 50,%11,%12
+	amsp 50,400-(%11/2),0
+	vsp 50,1
+	
+	print 10
+return
+
+
+*RSC_BGM
+	getparam %20
+	itoa $20,%20
+	
+	;取得した数字の桁数
+	len %25,$20
+	
+	;0埋め
+	for %0=0 to 1-%25
+		mov $20,"0"+$20
+	next
+	
+	;bgm逝ってるので一旦コメントアウト
+	bgm "bgm\Track"+$20+".wav"
+return
+
+
+*RSC_SE
+	getparam %20
+	itoa $20,%20
+	
+	;取得した数字の桁数
+	len %25,$20
+	
+	;0埋め
+	for %0=0 to 1-%25
+		mov $20,"0"+$20
+	next
+	
+	dwave 1,"wav\"+$20+".wav"
+return
+
+
+*RSC_MOVIE
+	getparam %20,%60
+	itoa $20,%20
+	
+	;取得した数字の桁数
+	len %25,$20
+	
+	;0埋め
+	for %0=0 to 3-%25
+		mov $20,"0"+$20
+	next
+	
+	mpegplay "mov\"+$20+".mpg",%79
+	
+	;クリア判定
+	if %60==1 mov %211,1;令嬢
+	if %60==2 mov %212,1;司書
+	if %60==3 mov %213,1;法師
+	if %60==4 mov %214,1;渡し守 - 抱く
+	if %60==5 mov %215,1;渡し守 - 抱かない
+	
+return
+
+
+*start_set
+	stop
+	dwave 1,"wav\0001.ogg"
+	csp -1
+	bg black,11
+return
+;----------------------------------------
+*start
+
+;エンディングムービースキップ変数(デバッグ用)
+mov %79,1
+
+bg black,1
+mpegplay "mov\0002.mpg",1
+
+*title
+
+bgm "bgm\Track12.wav"
+bg "grpe\9001.png",11
+
+lsp 41,"grpo\9011.png",242,250
+if %211==1 if %212==1 if %213==1 lsp 42,"grpo\9017.png",196,250
+lsp 43,"grpo\9012.png",150,250
+if %214==1 if %215==1 lsp 44,"grpo\9111.png",104,250
+lsp 45,"grpo\9013.png", 58,250
+lsp 46,"grpo\9015.png", 12,250
+
+lsp 51,"grpo\9001.png",242,250
+if %211==1 if %212==1 if %213==1 lsp 52,"grpo\9007.png",196,250
+lsp 53,"grpo\9002.png",150,250
+if %214==1 if %215==1 lsp 54,"grpo\9101.png",104,250
+lsp 55,"grpo\9003.png", 58,250
+lsp 56,"grpo\9005.png", 12,250
+
+print 1
+*title_loop
+	bclear
+	btrans
+	
+	exbtn_d     "C41C42C43C44C45C46"
+	exbtn 41,41,"P41C42C43C44C45C46"
+	exbtn 42,42,"C41P42C43C44C45C46"
+	exbtn 43,43,"C41C42P43C44C45C46"
+	exbtn 44,44,"C41C42C43P44C45C46"
+	exbtn 45,45,"C41C42C43C44P45C46"
+	exbtn 46,46,"C41C42C43C44C45P46"
+	
+	print 1
+	btnwait %50
+	if %50==41 start_set:setwin_def 0:gosub *SCR_0050_gsc:goto *title
+	if %50==42 start_set:setwin_def 0:gosub *SCR_0051_gsc:goto *title
+	if %50==43 start_set:wait 500:bg #8474a4,10:systemcall load:bg black,10:goto *title
+	if %50==44 start_set:mpegplay "mov\0002.mpg",1:click:mpegplay "mov\0003.mpg",1:click:goto *title
+	if %50==45 start_set:goto *volmenu_GUI:goto *title
+	if %50==46 start_set:wait 500:end
+goto *title_loop
+
+
+;----------------------------------------
+*volmenu_GUI
+	;https://gist.github.com/Prince-of-sea/325b8ae6912ecf23316a71c3d008480c
+	;文字/数字/スプライト/ボタン
+	;全部130~149までを使ってます - 競合に注意
+	
+	;バー文字列定義
+	mov $130,":s;#FFFFFF#666666○――――――――――"
+	mov $131,":s;#FFFFFF#666666―○―――――――――"
+	mov $132,":s;#FFFFFF#666666――○――――――――"
+	mov $133,":s;#FFFFFF#666666―――○―――――――"
+	mov $134,":s;#FFFFFF#666666――――○――――――"
+	mov $135,":s;#FFFFFF#666666―――――○―――――"
+	mov $136,":s;#FFFFFF#666666――――――○――――"
+	mov $137,":s;#FFFFFF#666666―――――――○―――"
+	mov $138,":s;#FFFFFF#666666――――――――○――"
+	mov $139,":s;#FFFFFF#666666―――――――――○―"
+	mov $140,":s;#FFFFFF#666666――――――――――○"
+	
+*volmenu_loop
+	;取得
+	getbgmvol   %130
+	getsevol    %131
+	getvoicevol %132
+	
+	;文字列変換
+	itoa2 $141,%130
+	itoa2 $142,%131
+	itoa2 $143,%132
+	
+	;バー代入
+	if %130==  0 mov $146,$130
+	if %130== 10 mov $146,$131
+	if %130== 20 mov $146,$132
+	if %130== 30 mov $146,$133
+	if %130== 40 mov $146,$134
+	if %130== 50 mov $146,$135
+	if %130== 60 mov $146,$136
+	if %130== 70 mov $146,$137
+	if %130== 80 mov $146,$138
+	if %130== 90 mov $146,$139
+	if %130==100 mov $146,$140
+	if %131==  0 mov $147,$130
+	if %131== 10 mov $147,$131
+	if %131== 20 mov $147,$132
+	if %131== 30 mov $147,$133
+	if %131== 40 mov $147,$134
+	if %131== 50 mov $147,$135
+	if %131== 60 mov $147,$136
+	if %131== 70 mov $147,$137
+	if %131== 80 mov $147,$138
+	if %131== 90 mov $147,$139
+	if %131==100 mov $147,$140
+	if %132==  0 mov $148,$130
+	if %132== 10 mov $148,$131
+	if %132== 20 mov $148,$132
+	if %132== 30 mov $148,$133
+	if %132== 40 mov $148,$134
+	if %132== 50 mov $148,$135
+	if %132== 60 mov $148,$136
+	if %132== 70 mov $148,$137
+	if %132== 80 mov $148,$138
+	if %132== 90 mov $148,$139
+	if %132==100 mov $148,$140
+	
+	;画面作成
+	lsp 130,":s;#FFFFFF［Ｃｏｎｆｉｇ］", 50, 50
+	lsp 131,":s;#FFFFFF#666666リセット", 400,450
+	lsp 132,":s;#FFFFFF#666666戻る",     550,450
+	
+	lsp 135,":s;#FFFFFFＢＧＭ",           50,150
+	lsp 136,":s;#FFFFFF#666666＜",       200,150
+	lsp 137,$146,                        250,150
+	lsp 138,":s;#FFFFFF#666666＞",       550,150
+	lsp 139,":s;#FFFFFF#666666"+$141,    600,150
+	
+	lsp 140,":s;#FFFFFFＳＥ",             50,250
+	lsp 141,":s;#FFFFFF#666666＜",       200,250
+	lsp 142,$147,                        250,250
+	lsp 143,":s;#FFFFFF#666666＞",       550,250
+	lsp 144,":s;#FFFFFF#666666"+$142,    600,250
+	
+	lsp 145,":s;#FFFFFFＶＯＩＣＥ",       50,350
+	lsp 146,":s;#FFFFFF#666666＜",       200,350
+	lsp 147,$148,                        250,350
+	lsp 148,":s;#FFFFFF#666666＞",       550,350
+	lsp 149,":s;#FFFFFF#666666"+$143,    600,350
+	
+	print 1
+	
+	;ボタン定義
+	bclear
+	spbtn 131,131
+	spbtn 132,132
+	spbtn 136,136
+	spbtn 138,138
+	spbtn 141,141
+	spbtn 143,143
+	spbtn 146,146
+	spbtn 148,148
+	
+	;入力待ち
+	btnwait %140
+	
+	if %140==131 bgmvol 100:sevol 100:voicevol 100
+	if %140==132 csp -1:reset
+	if %140==136 if %130!=  0 sub %130,10:bgmvol %130
+	if %140==138 if %130!=100 add %130,10:bgmvol %130
+	if %140==141 if %131!=  0 sub %131,10:sevol %131
+	if %140==143 if %131!=100 add %131,10:sevol %131
+	if %140==146 if %132!=  0 sub %132,10:voicevol %132
+	if %140==148 if %132!=100 add %132,10:voicevol %132
+	
+goto *volmenu_loop
+;----------ここまでdefault.txt----------
