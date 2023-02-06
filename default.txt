@@ -240,7 +240,7 @@ return
 *start
 
 ;エンディングムービースキップ変数(デバッグ用)
-mov %79,1
+;mov %79,1
 
 bg black,1
 mpegplay "mov\0002.mpg",1

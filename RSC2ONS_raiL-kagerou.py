@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import subprocess as sp
 import soundfile as sf
-import subprocess
 import re
 
 # [!]SEVEN-BRIDGEコンバータに比べればまだ汎用性は考えてあるものの、それでも解析途中です
@@ -16,7 +16,7 @@ import re
 
 
 # デバッグモード
-DEBUG_MODE = 1
+DEBUG_MODE = 0
 
 
 # ディレクトリの存在チェック関数
@@ -47,7 +47,7 @@ def text_dec(gsc_exe, scr, scr_dec):
 		if not (str(p.stem) in ex_gsc):
 
 			#デコード処理(ライセンスとか面倒なのでsubprocessで、ネイティブで動かしたい人は勝手に作って)
-			subprocess.run([str(gsc_exe), '-m', 'decompile', '-i', str(p)], shell=True, cwd=scr_dec )
+			sp.run([str(gsc_exe), '-m', 'decompile', '-i', str(p)], shell=True, cwd=scr_dec )
 
 	#txt(さっきデコードしたやつ)をglob
 	for p in scr.glob('*.txt'):
@@ -254,7 +254,6 @@ def text_cnv(default, zero_txt, scr_dec, path_dict_keys):
 					#処理終了後"last_hash"をもどす
 					last_hash = False
 				
-
 				#その他 - エラー防止の為コメントアウト
 				else:
 
@@ -299,14 +298,14 @@ def text_cnv(default, zero_txt, scr_dec, path_dict_keys):
 			txt += '\nreturn'
 
 	#ガ バ ガ バ 修 正
-	txt = txt.replace(r'gosub *SCR_1000_gsc', r'gosub *SCR_0999_gsc:gosub *SCR_1000_gsc')
-	txt = txt.replace(r'gosub *SCR_1132_gsc', r'gosub *SCR_1132_gsc:return')
-	txt = txt.replace(r'gosub *SCR_1134_gsc', r'gosub *SCR_1134_gsc:return')
-	txt = txt.replace(r'gosub *SCR_1240_gsc', r'gosub *SCR_1240_gsc:return')
-	txt = txt.replace(r'gosub *SCR_1242_gsc', r'gosub *SCR_1242_gsc:return')
+	txt = txt.replace(r'gosub *SCR_1000_gsc', r'gosub *SCR_0999_gsc:gosub *SCR_1000_gsc')#"はじめから"時の最初の「～遍く活字愛好家に捧ぐ～」に飛ばす
+	txt = txt.replace(r'gosub *SCR_1132_gsc', r'gosub *SCR_1132_gsc:return')#個別ルート終了時次の個別ルートにそのまま飛ぶのを防ぐ
+	txt = txt.replace(r'gosub *SCR_1134_gsc', r'gosub *SCR_1134_gsc:return')#同上
+	txt = txt.replace(r'gosub *SCR_1240_gsc', r'gosub *SCR_1240_gsc:return')#同上
+	txt = txt.replace(r'gosub *SCR_1242_gsc', r'gosub *SCR_1242_gsc:return')#同上
 	txt = txt.replace(r'gosub *SCR_1016_gsc', r'gosub *SCR_1016_gsc:RSC_select_chara2')
-	txt = txt.replace(r'渡し守にそう問いかけられて、築宮の中に咄嗟に浮かんだのは―――', r'渡し守にそう問いかけられて、築宮の中に咄嗟に浮かんだのは―――' + '\\\ngoto *skip_fix1')
-	txt = txt.replace(r'mov %21,8061:mov %22,8062:mov %23,8063', '*skip_fix1\n' + r'mov %21,8061:mov %22,8062:mov %23,8063:RSC_select:RSC_select_chara')
+	txt = txt.replace(r'渡し守にそう問いかけられて、築宮の中に咄嗟に浮かんだのは―――', r'渡し守にそう問いかけられて、築宮の中に咄嗟に浮かんだのは―――' + '\\\ngoto *skip_fix1')#個別ルート分岐ごまかし1
+	txt = txt.replace(r'mov %21,8061:mov %22,8062:mov %23,8063', '*skip_fix1\n' + r'mov %21,8061:mov %22,8062:mov %23,8063:RSC_select:RSC_select_chara')#個別ルート分岐ごまかし2
 
 	#出力結果を書き込み
 	open(zero_txt, 'w', errors='ignore').write(txt)
@@ -314,6 +313,23 @@ def text_cnv(default, zero_txt, scr_dec, path_dict_keys):
 	#デバッグ時のみ最大行数を表示
 	if DEBUG_MODE:
 		print('最大行数:' + str(mes_max))
+
+	return
+
+
+def junk_del(delete_list):
+
+	#リスト内のディレクトリパスでfor
+	for d in delete_list:
+
+		#ディレクトリパス内のファイル一覧でfor
+		for p in d.glob('*'):
+
+			#削除
+			p.unlink()
+		
+		#ディレクトリも削除
+		d.rmdir()
 
 	return
 
@@ -373,6 +389,12 @@ def main(debug):
 
 	#txt置換→0.txt出力
 	text_cnv(PATH_DICT['default'], PATH_DICT2['0_txt'], PATH_DICT2['scr_dec'], PATH_DICT.keys())
+
+	#不要データ削除
+	junk_del([
+		PATH_DICT['scr'], 
+		PATH_DICT2['scr_dec'],
+	])
 
 
 main(DEBUG_MODE)
