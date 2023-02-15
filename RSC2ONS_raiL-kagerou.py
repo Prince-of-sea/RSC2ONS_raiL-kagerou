@@ -227,10 +227,14 @@ def text_cnv(default, zero_txt, scr_dec, path_dict_keys):
 					#36 スプライト除去
 					elif last_hash == '36':
 						line = ('csp -1' + '\n')
-	
+
 					# (多分)暗転
 					elif last_hash == '21':
 						line = ('bg black,10\n')
+
+					#61 BGMのフェードアウト
+					elif last_hash == '61':
+						line = ('bgmfadeout 1000\n')						
 
 					#65 動画？
 					elif last_hash == '65':

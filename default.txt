@@ -36,6 +36,7 @@ defsub RSC_select_chara
 defsub RSC_select_chara2
 
 defsub start_set
+defsub bgmfadeout_def
 
 game
 ;----------------------------------------
@@ -43,6 +44,15 @@ game
 	if $10!="" dwave 0,"voice\"+$10+".wav"
 	mov $10,""
 	saveon ;pretextgosubóòópéûç≈å„Ç…saveonïKê{
+return
+
+
+*bgmfadeout_def
+	getparam %177
+	dwavestop 1
+	bgmfadeout %177
+	bgmstop
+	bgmfadeout 0
 return
 
 
@@ -231,8 +241,8 @@ return
 
 
 *start_set
-	stop
-	dwave 1,"wav\0001.ogg"
+	bgmfadeout_def 300
+	dwave 1,"wav\0001.wav"
 	csp -1
 	bg black,11
 return
@@ -253,14 +263,14 @@ bg "grpe\9001.png",11
 lsp 41,"grpo\9011.png",242,250
 if %211==1 if %212==1 if %213==1 lsp 42,"grpo\9017.png",196,250
 lsp 43,"grpo\9012.png",150,250
-if %214==1 if %215==1 lsp 44,"grpo\9111.png",104,250
+lsp 44,"grpo\9111.png",104,250
 lsp 45,"grpo\9013.png", 58,250
 lsp 46,"grpo\9015.png", 12,250
 
 lsp 51,"grpo\9001.png",242,250
 if %211==1 if %212==1 if %213==1 lsp 52,"grpo\9007.png",196,250
 lsp 53,"grpo\9002.png",150,250
-if %214==1 if %215==1 lsp 54,"grpo\9101.png",104,250
+lsp 54,"grpo\9101.png",104,250
 lsp 55,"grpo\9003.png", 58,250
 lsp 56,"grpo\9005.png", 12,250
 
