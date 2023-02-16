@@ -260,21 +260,48 @@ mpegplay "mov\0002.mpg",1
 bgm "bgm\Track12.wav"
 bg "grpe\9001.png",11
 
+
+if %211==1 if %212==1 if %213==1 mov %180,1
+
+if %180==1 goto *watashimori_on
+if %180!=1 goto *watashimori_off
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+*watashimori_on
+
 lsp 41,"grpo\9011.png",242,250
-if %211==1 if %212==1 if %213==1 lsp 42,"grpo\9017.png",196,250
+lsp 42,"grpo\9017.png",196,250
 lsp 43,"grpo\9012.png",150,250
 lsp 44,"grpo\9111.png",104,250
 lsp 45,"grpo\9013.png", 58,250
 lsp 46,"grpo\9015.png", 12,250
 
 lsp 51,"grpo\9001.png",242,250
-if %211==1 if %212==1 if %213==1 lsp 52,"grpo\9007.png",196,250
+lsp 52,"grpo\9007.png",196,250
 lsp 53,"grpo\9002.png",150,250
 lsp 54,"grpo\9101.png",104,250
 lsp 55,"grpo\9003.png", 58,250
 lsp 56,"grpo\9005.png", 12,250
 
-print 1
+print 1:goto *title_loop
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+*watashimori_off
+
+lsp 41,"grpo\9011.png",242,250
+lsp 43,"grpo\9012.png",196,250
+lsp 44,"grpo\9111.png",150,250
+lsp 45,"grpo\9013.png",104,250
+lsp 46,"grpo\9015.png", 58,250
+
+lsp 51,"grpo\9001.png",242,250
+lsp 53,"grpo\9002.png",196,250
+lsp 54,"grpo\9101.png",150,250
+lsp 55,"grpo\9003.png",104,250
+lsp 56,"grpo\9005.png", 58,250
+
+print 1:goto *title_loop
+;;;;;;;;;;;;;;;
+
+
 *title_loop
 	bclear
 	btrans
@@ -292,12 +319,19 @@ print 1
 	if %50==41 start_set:setwin_def 0:gosub *SCR_0050_gsc:goto *title
 	if %50==42 start_set:setwin_def 0:gosub *SCR_0051_gsc:goto *title
 	if %50==43 start_set:wait 500:bg #8474a4,10:systemcall load:bg black,10:goto *title
-	if %50==44 start_set:mpegplay "mov\0002.mpg",1:click:mpegplay "mov\0003.mpg",1:click:goto *title
+	if %50==44 start_set:gosub *movie_mode:goto *title
 	if %50==45 start_set:goto *volmenu_GUI:goto *title
 	if %50==46 start_set:wait 500:end
 goto *title_loop
 
 
+;----------------------------------------
+*movie_mode
+mpegplay "mov\0002.mpg",1:click
+if %211==1 mpegplay "mov\0003.mpg",1:click:return
+if %212==1 mpegplay "mov\0003.mpg",1:click:return
+if %213==1 mpegplay "mov\0003.mpg",1:click:return
+return
 ;----------------------------------------
 *volmenu_GUI
 	;https://gist.github.com/Prince-of-sea/325b8ae6912ecf23316a71c3d008480c

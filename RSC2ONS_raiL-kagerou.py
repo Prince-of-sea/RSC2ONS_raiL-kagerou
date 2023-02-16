@@ -321,7 +321,7 @@ def text_cnv(default, zero_txt, scr_dec, path_dict_keys):
 	return
 
 
-def junk_del(delete_list):
+def junk_del(delete_list, delete_list2):
 
 	#リスト内のディレクトリパスでfor
 	for d in delete_list:
@@ -334,6 +334,15 @@ def junk_del(delete_list):
 		
 		#ディレクトリも削除
 		d.rmdir()
+
+	#リスト内のディレクトリパスでfor
+	for d in delete_list2:
+
+		#ディレクトリパス内のファイル(lwg)一覧でfor
+		for p in d.glob('*.lwg'):
+
+			#削除
+			p.unlink()
 
 	return
 
@@ -396,9 +405,12 @@ def main(debug):
 
 	#不要データ削除
 	junk_del([
-		PATH_DICT['scr'], 
+		PATH_DICT['scr'],
 		PATH_DICT2['scr_dec'],
-	])
+	], [
+		PATH_DICT['grps'],
+	]
+	)
 
 
 main(DEBUG_MODE)
