@@ -268,35 +268,35 @@ if %180!=1 goto *watashimori_off
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 *watashimori_on
 
-lsp 41,"grpo\9011.png",242,250
-lsp 42,"grpo\9017.png",196,250
+lsp 41,"grpo\9011.png",250,250
+lsp 42,"grpo\9017.png",200,250
 lsp 43,"grpo\9012.png",150,250
-lsp 44,"grpo\9111.png",104,250
-lsp 45,"grpo\9013.png", 58,250
-lsp 46,"grpo\9015.png", 12,250
+lsp 44,"grpo\9111.png",100,250
+lsp 45,"grpo\9013.png", 50,250
+lsp 46,"grpo\9015.png",  0,250
 
-lsp 51,"grpo\9001.png",242,250
-lsp 52,"grpo\9007.png",196,250
+lsp 51,"grpo\9001.png",250,250
+lsp 52,"grpo\9007.png",200,250
 lsp 53,"grpo\9002.png",150,250
-lsp 54,"grpo\9101.png",104,250
-lsp 55,"grpo\9003.png", 58,250
-lsp 56,"grpo\9005.png", 12,250
+lsp 54,"grpo\9101.png",100,250
+lsp 55,"grpo\9003.png", 50,250
+lsp 56,"grpo\9005.png",  0,250
 
 print 1:goto *title_loop
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 *watashimori_off
 
-lsp 41,"grpo\9011.png",242,250
-lsp 43,"grpo\9012.png",196,250
+lsp 41,"grpo\9011.png",250,250
+lsp 43,"grpo\9012.png",200,250
 lsp 44,"grpo\9111.png",150,250
-lsp 45,"grpo\9013.png",104,250
-lsp 46,"grpo\9015.png", 58,250
+lsp 45,"grpo\9013.png",100,250
+lsp 46,"grpo\9015.png", 50,250
 
-lsp 51,"grpo\9001.png",242,250
-lsp 53,"grpo\9002.png",196,250
+lsp 51,"grpo\9001.png",250,250
+lsp 53,"grpo\9002.png",200,250
 lsp 54,"grpo\9101.png",150,250
-lsp 55,"grpo\9003.png",104,250
-lsp 56,"grpo\9005.png", 58,250
+lsp 55,"grpo\9003.png",100,250
+lsp 56,"grpo\9005.png", 50,250
 
 print 1:goto *title_loop
 ;;;;;;;;;;;;;;;
@@ -306,6 +306,10 @@ print 1:goto *title_loop
 	bclear
 	btrans
 	
+	if %180==1 goto *watashimori_on_exbtn
+	if %180!=1 goto *watashimori_off_exbtn
+	
+	*watashimori_on_exbtn
 	exbtn_d     "C41C42C43C44C45C46"
 	exbtn 41,41,"P41C42C43C44C45C46"
 	exbtn 42,42,"C41P42C43C44C45C46"
@@ -313,7 +317,19 @@ print 1:goto *title_loop
 	exbtn 44,44,"C41C42C43P44C45C46"
 	exbtn 45,45,"C41C42C43C44P45C46"
 	exbtn 46,46,"C41C42C43C44C45P46"
+	goto *end_exbtn
 	
+	*watashimori_off_exbtn
+	exbtn_d     "C41C43C44C45C46"
+	exbtn 41,41,"P41C43C44C45C46"
+	exbtn 43,43,"C41P43C44C45C46"
+	exbtn 44,44,"C41C43P44C45C46"
+	exbtn 45,45,"C41C43C44P45C46"
+	exbtn 46,46,"C41C43C44C45P46"
+	goto *end_exbtn
+	
+	
+	*end_exbtn
 	print 1
 	btnwait %50
 	if %50==41 start_set:setwin_def 0:gosub *SCR_0050_gsc:goto *title
