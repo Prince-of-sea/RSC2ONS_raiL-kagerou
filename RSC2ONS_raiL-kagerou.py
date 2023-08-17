@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import concurrent.futures
 import subprocess as sp
 import soundfile as sf
 import re
@@ -15,10 +16,6 @@ import re
 # 5.お手伝いさん
 
 
-# デバッグモード
-DEBUG_MODE = 0
-
-
 # ディレクトリの存在チェック関数
 def dir_check(path_list):
 
@@ -31,6 +28,15 @@ def dir_check(path_list):
 	return CHK
 
 
+# シナリオを平文にデコードする関数 - 本体
+def text_dec_main(p, gsc_exe, ex_gsc, scr_dec):
+	#不要gscはここで除外
+	if not (str(p.stem) in ex_gsc):
+		#デコード処理(ライセンスとか面倒なのでsubprocessで、ネイティブで動かしたい人は勝手に作って)
+		sp.run([str(gsc_exe), '-m', 'decompile', '-i', str(p)], shell=True, cwd=scr_dec )
+	return
+
+
 # シナリオを平文にデコードする関数
 def text_dec(gsc_exe, scr, scr_dec):
 
@@ -40,14 +46,13 @@ def text_dec(gsc_exe, scr, scr_dec):
 	#gsc除外リスト作成 - kagerou専用
 	ex_gsc = ['0000', '0001', '0040', '0099', '9999']
 
-	#gscをglob
-	for p in scr.glob('*.gsc'):
-	
-		#不要gscはここで除外
-		if not (str(p.stem) in ex_gsc):
-
-			#デコード処理(ライセンスとか面倒なのでsubprocessで、ネイティブで動かしたい人は勝手に作って)
-			sp.run([str(gsc_exe), '-m', 'decompile', '-i', str(p)], shell=True, cwd=scr_dec )
+	with concurrent.futures.ThreadPoolExecutor() as executor:#シナリオデコード- マルチスレッドで高速化
+		futures = []
+		
+		for p in scr.glob('*.gsc'):#gscをglob
+			futures.append(executor.submit(text_dec_main, p, gsc_exe, ex_gsc, scr_dec))
+		
+		concurrent.futures.as_completed(futures)
 
 	#txt(さっきデコードしたやつ)をglob
 	for p in scr.glob('*.txt'):
@@ -58,35 +63,43 @@ def text_dec(gsc_exe, scr, scr_dec):
 
 	return
 
+
+# 音楽変換関数 - 本体
+def music_cnv_main(p):
+	#wav化した際のパスを作成
+	p_wav = p.with_suffix('.wav')
+
+	#wavがまだない場合に限り処理
+	if not p_wav.exists():
+		
+		#ogg読み込み
+		sd = sf.read(p)
+
+		#wavに変換
+		sf.write(p_wav, sd[0], sd[1])
+
+		#元のoggを削除
+		p.unlink()
+
+
 # 音楽変換関数
 def sound_dec(decode_list):
-
 	#リスト内のディレクトリパスでfor
 	for d in decode_list:
+	
+		with concurrent.futures.ThreadPoolExecutor() as executor:#garbroで取り出した音源のヘッダが仕様怪しいのでsoundfile通してwavへ変換 - マルチスレッドで高速化
+			futures = []
 
-		#ディレクトリパス内のファイル一覧でfor
-		for p in d.glob('**/*.ogg'):
-
-			#wav化した際のパスを作成
-			p_wav = p.with_suffix('.wav')
-
-			#wavがまだない場合に限り処理
-			if not p_wav.exists():
-				
-				#ogg読み込み
-				sd = sf.read(p)
-
-				#wavに変換
-				sf.write(p_wav, sd[0], sd[1])
-
-				#元のoggを削除
-				p.unlink()
-
+			#ディレクトリパス内のファイル一覧でfor
+			for p in d.glob('**/*.ogg'):
+				futures.append(executor.submit(music_cnv_main, p))
+			
+			concurrent.futures.as_completed(futures)
 	return
 
 
 # txt置換→0.txt出力関数
-def text_cnv(default, zero_txt, scr_dec, path_dict_keys):
+def text_cnv(DEBUG_MODE, default, zero_txt, scr_dec, path_dict_keys):
 
 	#シナリオ文判定初期化
 	mes_max = 0
@@ -348,7 +361,9 @@ def junk_del(delete_list, delete_list2):
 
 
 # メイン関数
-def main(debug):
+def main():
+	#デバッグ
+	debug = 0
 
 	#同一階層のパスを変数へ代入
 	same_hierarchy = Path.cwd()
@@ -401,7 +416,7 @@ def main(debug):
 	])
 
 	#txt置換→0.txt出力
-	text_cnv(PATH_DICT['default'], PATH_DICT2['0_txt'], PATH_DICT2['scr_dec'], PATH_DICT.keys())
+	text_cnv(debug, PATH_DICT['default'], PATH_DICT2['0_txt'], PATH_DICT2['scr_dec'], PATH_DICT.keys())
 
 	#不要データ削除
 	junk_del([
@@ -409,8 +424,7 @@ def main(debug):
 		PATH_DICT2['scr_dec'],
 	], [
 		PATH_DICT['grps'],
-	]
-	)
+	])
 
 
-main(DEBUG_MODE)
+main()
