@@ -58,8 +58,12 @@ return
 
 *setwin_def
 	getparam %20
-	if %20==0 setwindow3 5,  5,21,20,24,24,0,6,14,0,1,#999999,0,  0,799,599;ÇŸÇÒÇ÷
-	if %20==1 setwindow3 5,477,21,20,24,24,0,5,40,0,1,#999999,0,470,799,599;ëIëéà
+	if %250==0 mov %150,5
+	if %250==1 mov %150,145
+	if %250==2 mov %150,290
+	
+	if %20==0 tateyoko %251:setwindow3 %150,  5,21,20,24,24,0,6,14,0,1,#999999,0,  0,799,599;ÇŸÇÒÇ÷
+	if %20==1 tateyoko 0   :setwindow3    5,477,21,20,24,24,0,5,40,0,1,#999999,0,470,799,599;ëIëéà
 return
 
 
@@ -424,17 +428,26 @@ return
 	lsp 138,":s;#FFFFFF#666666ÅÑ",       550,150
 	lsp 139,":s;#FFFFFF#666666"+$141,    600,150
 	
-	lsp 140,":s;#FFFFFFÇrÇd",             50,250
-	lsp 141,":s;#FFFFFF#666666ÅÉ",       200,250
-	lsp 142,$147,                        250,250
-	lsp 143,":s;#FFFFFF#666666ÅÑ",       550,250
-	lsp 144,":s;#FFFFFF#666666"+$142,    600,250
+	lsp 140,":s;#FFFFFFÇrÇd",             50,200
+	lsp 141,":s;#FFFFFF#666666ÅÉ",       200,200
+	lsp 142,$147,                        250,200
+	lsp 143,":s;#FFFFFF#666666ÅÑ",       550,200
+	lsp 144,":s;#FFFFFF#666666"+$142,    600,200
 	
-	lsp 145,":s;#FFFFFFÇuÇnÇhÇbÇd",       50,350
-	lsp 146,":s;#FFFFFF#666666ÅÉ",       200,350
-	lsp 147,$148,                        250,350
-	lsp 148,":s;#FFFFFF#666666ÅÑ",       550,350
-	lsp 149,":s;#FFFFFF#666666"+$143,    600,350
+	lsp 145,":s;#FFFFFFÇuÇnÇhÇbÇd",       50,250
+	lsp 146,":s;#FFFFFF#666666ÅÉ",       200,250
+	lsp 147,$148,                        250,250
+	lsp 148,":s;#FFFFFF#666666ÅÑ",       550,250
+	lsp 149,":s;#FFFFFF#666666"+$143,    600,250
+	
+	lsp 150,":s;#FFFFFFï∂éöà íu",               50,300
+	if %250==0 lsp 151,":s;#FFFFFF#666666ç∂",  200,300
+	if %250==1 lsp 151,":s;#FFFFFF#666666íÜâõ",200,300
+	if %250==2 lsp 151,":s;#FFFFFF#666666âE",  200,300
+	
+	lsp 155,":s;#FFFFFFï∂éöï\é¶",               50,350
+	if %251==0 lsp 156,":s;#FFFFFF#666666â°",  200,350
+	if %251==1 lsp 156,":s;#FFFFFF#666666èc",  200,350
 	
 	print 1
 	
@@ -448,11 +461,18 @@ return
 	spbtn 143,143
 	spbtn 146,146
 	spbtn 148,148
+	spbtn 138,138
+	
+	spbtn 151,151
+	spbtn 152,152
+	spbtn 153,153
+	spbtn 156,156
+	spbtn 158,158
 	
 	;ì¸óÕë“Çø
 	btnwait %140
 	
-	if %140==131 bgmvol 100:sevol 100:voicevol 100
+	if %140==131 bgmvol 100:sevol 100:voicevol 100:mov %250,0:mov %251,0
 	if %140==132 csp -1:reset
 	if %140==136 if %130!=  0 sub %130,10:bgmvol %130
 	if %140==138 if %130!=100 add %130,10:bgmvol %130
@@ -460,6 +480,12 @@ return
 	if %140==143 if %131!=100 add %131,10:sevol %131
 	if %140==146 if %132!=  0 sub %132,10:voicevol %132
 	if %140==148 if %132!=100 add %132,10:voicevol %132
+	
+	if %140==151 if %250==2 mov %250,0:wait 100:goto *volmenu_loop
+	if %140==151 if %250==0 mov %250,1:wait 100:goto *volmenu_loop
+	if %140==151 if %250==1 mov %250,2:wait 100:goto *volmenu_loop
+	if %140==156 if %251==1 mov %251,0:wait 100:goto *volmenu_loop
+	if %140==156 if %251==0 mov %251,1:wait 100:goto *volmenu_loop
 	
 goto *volmenu_loop
 ;----------Ç±Ç±Ç‹Ç≈default.txt----------
